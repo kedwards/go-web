@@ -26,7 +26,7 @@ stop: ## Stops the application
 dbuild: ## Build docker image, make dbuild [ VERSION=<version> ]
 	@docker build --build-arg VERSION=$(VERSION) -t qp-web:$(VERSION) .
 
-drun:  ## Runs the application in a docker container, creates it if it does not exist
+drun: dbuild  ## Runs the application in a docker container, creates it if it does not exist
 	@docker run -itd --name qp-web -p 80:8888 qp-web:$(VERSION)
 
 dstop:  ## Stop the docker container
