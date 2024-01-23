@@ -10,7 +10,7 @@ COPY . .
 
 RUN go mod tidy
 
-RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags "-X main.Version=${VERSION}" -o bin/main cmd/web/*.go
+RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags "-X main.version=${VERSION}" -o bin/main cmd/web/*.go
 
 FROM alpine
 

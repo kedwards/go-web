@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"html/template"
 	"net/http"
+	"os"
 )
 
 var (
@@ -17,7 +18,9 @@ var (
     "/": "index",
   }
 
-	Version = "0.0.0"
+	version = "0.0.0"
+
+	hostname = os.Getenv("HOSTNAME")
 )
 
 func main() {
@@ -58,7 +61,8 @@ func serveIndex(w http.ResponseWriter, r *http.Request) {
 
   data := map[string]interface{}{
     "userAgent": r.UserAgent(),
-		"version": Version,
+		"version": version,
+		"hostname": hostname,
   }
 
 	err = tpl.Execute(w, data)
