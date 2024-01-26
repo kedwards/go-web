@@ -24,10 +24,10 @@ stop: ## Stops the application
 	@pkill -SIGTERM -f "main" &> /dev/null
 
 dbuild: ## Build docker image, make dbuild [ VERSION=<version> ]
-	@docker build --build-arg VERSION=$(VERSION) -t qp-web:$(VERSION) .
+	@docker build --build-arg VERSION=$(VERSION) -t go-rest:$(VERSION) .
 
 drun: dbuild  ## Runs the application in a docker container, creates it if it does not exist
-	@docker run -itd --name qp-web -p 80:8888 qp-web:$(VERSION)
+	@docker run -itd --name go-rest -p 80:8888 go-rest:$(VERSION)
 
 dstop:  ## Stop the docker container
 	@docker rm -f qp-web
