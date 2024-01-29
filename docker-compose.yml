@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  go-web:
+    build:
+      context: ./web/
+      args:
+        - VERSION=${VERSION}
+        - PORT=${PORT}
+    image: go-web:${VERSION}
+    ports:
+      - ${PORT}:${PORT}
+
+  nginx-proxy:
+    build:
+      context: ./nginx-proxy/
+      args:
+        - service=${SERVICE}
+        - port=${PORT}
+        - VERSION=${VERSION}
+    image: nginx-proxy:${VERSION}
+    ports:
+      - 80:80

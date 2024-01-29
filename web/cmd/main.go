@@ -20,7 +20,7 @@ var (
 	}
 
 	version = "0.0.0"
-
+	port = "8888"
 	hostname = os.Getenv("HOSTNAME")
 )
 
@@ -41,7 +41,8 @@ func runServer() error {
 
 	httpRouter.Get("/", serveIndex)
 
-	server := &http.Server{Addr: ":8888", Handler: httpRouter}
+	// server := &http.Server{Addr: ":8888", Handler: httpRouter}
+	server := &http.Server{Addr: fmt.Sprintf(":%s", port), Handler: httpRouter}
 	return server.ListenAndServe()
 }
 
