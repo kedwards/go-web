@@ -1,10 +1,12 @@
-mkfile_path:=$(abspath $(dir $(lastword $(MAKEFILE_LIST)))/)
-branch_name:=$(shell  git symbolic-ref -q --short HEAD | sed -e "s|^heads/||")
-DEFAULT_GOAL:= help
+mkfile_path := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/)
 
-VERSION:=0.0.0
-PORT:=8888
-COLOR=000000
+branch_name := $(shell git rev-parse --abbrev-ref HEAD)
+tag_or_branch_name := $(shell git describe --tags --abbrev=0 2>/dev/null || echo $(branch_name))
+
+VERSION ?= $(tag_or_branch_name)
+PORT ?= 8888
+COLOR ?= 000000
+DEFAULT_GOAL:= help
 
 ##@ [Targets]
 help:
@@ -28,14 +30,14 @@ clean:  ## Cleans older builds and code, make clean
 		go clean
 
 # docker
-cbuild: ## Build the application as container images, make cbuild <build-envs>
+cbuild: ## Build the application as container image, make cbuild <build-envs>
 	@docker build --build-arg VERSION=$(VERSION) --build-arg PORT=$(PORT)  -t go-web:$(VERSION) ./web/
 
 crun: cbuild ## Run the application as container images, make crun <build-envs>
 	@docker run -itd --rm --name go-web -p $(PORT):$(PORT) go-web:$(VERSION) && \
 		echo 'http://localhost:$(PORT)'
 
-cprun: crun ## Run the application as container images, make crun <build-envs> 
+cprun: crun ## Run the application as container image with apache proxy, make crun <build-envs> 
 	@docker build --build-arg proxy_host=$$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' go-web) --build-arg port=$(PORT) -t nginx-proxy:$(VERSION) ./nginx-proxy/ && \
 	  docker run -itd --rm --name nginx-proxy -p 80:80 nginx-proxy:$(VERSION) && \
 		echo 'http://localhost' 
