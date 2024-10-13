@@ -19,6 +19,7 @@ var (
 		"/": "index",
 	}
 
+	color = "000000"
 	version = "0.0.0"
 	port = "8888"
 	hostname = os.Getenv("HOSTNAME")
@@ -82,6 +83,7 @@ func serveIndex(w http.ResponseWriter, r *http.Request) {
 		"userAgent":  r.UserAgent(),
 		"version":    version,
 		"hostname":   hostname,
+		"color":      color,
 	}
 
 	err = tpl.Execute(w, data)
