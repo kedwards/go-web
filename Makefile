@@ -14,7 +14,7 @@ help:
 		awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z0-9_-]+:.*?##/ {printf "  \033[36m%-10s\033[0m %s\n", $$1, $$2}/^##@/{printf "\n\033[1m%s\033[0m\n", substr($$0, 5)}'
 
 # native go
-build: ## Compile application into binary, make build [ VERSION=<0.0.0> PORT=<8888> COLOR=<000000> ]
+build: ## Compile application into binary, make build [ VERSION=<branch|tag> PORT=<8888> COLOR=<000000> ]
 	@cd web && \
 		go mod tidy && \
 		go build -o ../dist/main -ldflags "-X main.version=$(VERSION) -X main.port=$(PORT) -X main.color=$(COLOR)" ./cmd/*.go
