@@ -1,0 +1,80 @@
+---
+version: "3"
+
+vars:
+  VERSION: '{{default "dev" .VERSION}}'
+  PORT: '{{default "8888" .PORT}}'
+  COLOR: '{{default "000000" .COLOR}}'
+  BUILD_TIME: '{{now | date "2006-01-02T15:04:05Z07:00"}}'
+
+tasks:
+  format:
+    desc: Format Go source files
+    dir: web
+    cmds:
+      - gofmt -w ./cmd
+
+  lint:
+    desc: Run golangci-lint
+    dir: web
+    cmds:
+      - sh -c 'if command -v golangci-lint >/dev/null 2>&1; then golangci-lint run ./...; else go run github.com/golangci/golangci-lint/cmd/golangci-lint@latest run ./...; fi'
+
+  test:
+    desc: Run tests
+    dir: web
+    cmds:
+      - go test -v ./...
+
+  run:
+    desc: Run application
+    dir: web
+    cmds:
+      - go run ./cmd -port={{.PORT}} -color={{.COLOR}}
+
+  build:
+    desc: Build binary (VERSION={{.VERSION}} PORT={{.PORT}} COLOR={{.COLOR}})
+    dir: web
+    cmds:
+      - mkdir -p dist
+      - go mod tidy
+      - go build -ldflags="-X main.version={{.VERSION}} -X main.port={{.PORT}} -X main.color={{.COLOR}} -X main.buildTime={{.BUILD_TIME}}" -o dist/main ./cmd
+
+  clean:
+    desc: Remove build artifacts
+    dir: web
+    cmds:
+      - rm -rf dist
+
+  docker:build:
+    desc: Build Docker image (task docker:build VERSION=v1.0.0 PORT=8888 COLOR=ff0000)
+    cmds:
+      - docker build --build-arg VERSION={{.VERSION}} --build-arg PORT={{.PORT}} -t go-web:{{.VERSION}} ./web/
+
+  docker:run:
+    desc: Run Docker container (VERSION={{.VERSION}} PORT={{.PORT}})
+    deps: [docker:build]
+    cmds:
+      - docker run -itd --rm --name go-web -p {{.PORT}}:{{.PORT}} go-web:{{.VERSION}}
+      - echo "App running at http://localhost:{{.PORT}}"
+
+  docker:stop:
+    desc: Stop running Docker container
+    cmds:
+      - docker rm -f go-web
+
+  compose:down:
+    desc: Stop docker compose services
+    cmds:
+      - docker compose down
+
+  compose:up:
+    desc: Start services with docker-compose (VERSION={{.VERSION}} PORT={{.PORT}} COLOR={{.COLOR}})
+    cmds:
+      - docker compose up -d --build
+      - echo "App running at http://localhost:{{.PORT}}"
+      - echo "Proxy running at http://localhost"
+    env:
+      VERSION: "{{.VERSION}}"
+      PORT: "{{.PORT}}"
+      COLOR: "{{.COLOR}}"

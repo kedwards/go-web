@@ -1,23 +1,30 @@
-version: '3'
-
+---
 services:
   go-web:
     build:
       context: ./web/
       args:
-        - VERSION=${VERSION}
-        - PORT=${PORT}
-    image: go-web:${VERSION}
+        - VERSION=${VERSION:-dev}
+        - PORT=${PORT:-8888}
+        - COLOR=${COLOR:-000000}
+    image: go-web:${VERSION:-dev}
+    container_name: go-web
     ports:
-      - ${PORT}:${PORT}
+      - "${PORT:-8888}:${PORT:-8888}"
+    environment:
+      - PORT=${PORT:-8888}
+      - COLOR=${COLOR:-000000}
 
   nginx-proxy:
     build:
       context: ./nginx-proxy/
       args:
-        - service=${SERVICE}
-        - port=${PORT}
-        - VERSION=${VERSION}
-    image: nginx-proxy:${VERSION}
+        - SERVICE=${SERVICE:-go-web}
+        - PORT=${PORT:-8888}
+        - VERSION=${VERSION:-dev}
+    image: nginx-proxy:${VERSION:-dev}
+    container_name: nginx-proxy
     ports:
-      - 80:80
+      - "80:80"
+    depends_on:
+      - go-web

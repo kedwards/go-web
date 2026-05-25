@@ -4,11 +4,11 @@ import (
 	"embed"
 	"errors"
 	"fmt"
-	"github.com/go-chi/chi/v5"
 	"html/template"
 	"net/http"
 	"os"
-	"strings"
+
+	"github.com/go-chi/chi/v5"
 )
 
 var (
@@ -19,12 +19,11 @@ var (
 		"/": "index",
 	}
 
-	color = "000000"
-	version = "0.0.0"
-	port = "8888"
+	color    = "000000"
+	version  = "0.0.0"
+	port     = "8888"
 	hostname = os.Getenv("HOSTNAME")
 )
-
 
 func main() {
 	err := runServer()
@@ -47,21 +46,12 @@ func runServer() error {
 	return server.ListenAndServe()
 }
 
-func parse(file string) *template.Template {
-  funcs := template.FuncMap{
-    "uppercase": func(v string) string {
-        return strings.ToUpper(v)
-    },
-}
-	return template.Must(template.New("layout.html").Funcs(funcs).ParseFS(templateFS, "layout.html", file))
-}
-
-func parseSingle(file string) (*template.Template, error)  {
-  tpl, err := template.ParseFS(templateFS, file)
+func parseSingle(file string) (*template.Template, error) {
+	tpl, err := template.ParseFS(templateFS, file)
 	if err != nil {
-    return nil, err
+		return nil, err
 	}
-  return tpl, nil
+	return tpl, nil
 }
 
 func serveIndex(w http.ResponseWriter, r *http.Request) {
@@ -74,16 +64,16 @@ func serveIndex(w http.ResponseWriter, r *http.Request) {
 	templateToRender := fmt.Sprintf("templates/%s.gohtml", page)
 	tpl, err := parseSingle(templateToRender)
 	if err != nil {
-		fmt.Sprintf("page %s not found in pages cache...", r.RequestURI)
+		_ = fmt.Sprintf("page %s not found in pages cache...", r.RequestURI)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	data := map[string]interface{}{
-		"userAgent":  r.UserAgent(),
-		"version":    version,
-		"hostname":   hostname,
-		"color":      color,
+	data := map[string]any{
+		"userAgent": r.UserAgent(),
+		"version":   version,
+		"hostname":  hostname,
+		"color":     color,
 	}
 
 	err = tpl.Execute(w, data)
